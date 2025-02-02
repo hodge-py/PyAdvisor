@@ -9,7 +9,7 @@ class PyTrader:
     def __init__(self):
         pass
 
-    def generateReport(self):
+    def generateValueReport(self):
         pass
 
 
