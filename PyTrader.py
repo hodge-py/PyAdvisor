@@ -1,13 +1,17 @@
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
-data = yf.Ticker("TSLA")
-plots = data.history(period="max")
-print(data.quarterly_financials.iloc[:,3])
-plt.plot(plots.index.values, plots.Close)
-plt.show()
+class PyTrader:
+
+    def __init__(self):
+        pass
+
+    def generateReport(self):
+        pass
+
+
+    def stockScreener(self):
+        pass
