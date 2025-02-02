@@ -12,6 +12,8 @@ class PyTrader:
     def generateValueReport(self):
         pass
 
-
     def stockScreener(self):
+        pass
+
+    def generateTechnicalReport(self):
         pass
