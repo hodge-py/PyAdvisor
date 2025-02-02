@@ -7,5 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 data = yf.Ticker("TSLA")
-print(data.history(period="max"))
-
+plots = data.history(period="max")
+print(data.quarterly_financials.iloc[:,3])
+plt.plot(plots.index.values, plots.Close)
+plt.show()
