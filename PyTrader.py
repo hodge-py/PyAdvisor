@@ -66,8 +66,10 @@ class PyTrader:
 
         addToClipBoard(str(UnderValued))
 
+        return UnderValued
 
-    def generateTechnicalReport(self, stocks, shortWin = 50, longWin = 200):
+    def generateTechnicalReport(self, stocks, shortWin = 50, longWin = 200, save_as_csv=False):
+        allTechnicals = []
         for z in stocks:
             data = yf.Ticker(z)
             data = data.history(period="1y")
@@ -83,14 +85,23 @@ class PyTrader:
             plt.title(f"{z} Moving Average Crossover")
             plt.show()
 
+            sma = ''
             if (data["SMA_50"].iloc[-1] > data["SMA_200"].iloc[-1]) and (abs((data["SMA_50"].iloc[-1] - data["SMA_200"].iloc[-1]) / data["SMA_50"].iloc[-1]) <= 0.01):
-                print("Buy " + str(z))
-                print(abs((data["SMA_50"].iloc[-1] - data["SMA_200"].iloc[-1]) / data["SMA_50"].iloc[-1]))
+                sma = "Buy"
+                #print(abs((data["SMA_50"].iloc[-1] - data["SMA_200"].iloc[-1]) / data["SMA_50"].iloc[-1]))
             elif ((data["SMA_50"].iloc[-1] < data["SMA_200"].iloc[-1]) and (abs((data["SMA_50"].iloc[-1] - data["SMA_200"].iloc[-1]) / data["SMA_50"].iloc[-1]) <= 0.01)):
-                print("Sell " + str(z))
+                sma = "Sell"
+                #print("Sell " + str(z))
             else:
-                print("Hold/Do Nothing " + str(z))
+                sma = "Hold/Do Nothing"
+                #print("Hold/Do Nothing " + str(z))
 
 
+            allTechnicals.append([z,sma])
 
-print(yf.Ticker('AACT').info['trailingEps'])
+        df2 = pd.DataFrame(allTechnicals,columns=['Ticker', 'SMA'])
+
+        print(df2)
+
+        if save_as_csv:
+            df2.to_csv("stocksTechnical.csv", index=True)
