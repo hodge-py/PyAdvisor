@@ -39,10 +39,21 @@ class PyTrader:
             except:
                 financialPeg = None
 
-            links = f"https://finance.yahoo.com/quote/{stock}"
-            arr.append([stock,priceBook,priceEarnings,financialPeg,links])
+            try:
+                debtEquity = y.info['debtToEquity']
+            except:
+                debtEquity = None
+                #financialPeg = None
+            try:
+                quickly = y.info['quickRatio']
+            except:
+                quickly = None
 
-        df = pd.DataFrame(arr, columns=['Stock','Price/Book','Price/Earnings',"Trailing Peg Ratio", "Link"])
+            links = f"https://finance.yahoo.com/quote/{stock}"
+            arr.append([stock,priceBook,priceEarnings,financialPeg,debtEquity,quickly,links])
+
+        df = pd.DataFrame(arr, columns=['Stock','Price/Book','Price/Earnings',"Trailing Peg Ratio", "DebtToEquity", "QuickRatio", "Link"])
+        df = df.sort_values(['Price/Book', 'Price/Earnings'], ascending=[False,False])
         print(df)
         if save_as_csv:
             df.to_csv("stocks.csv", index=True)
