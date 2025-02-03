@@ -58,7 +58,7 @@ class PyTrader:
         if save_as_csv:
             df.to_csv("stocks.csv", index=True)
 
-
+    """
     def stockScreener(self, stocks, PB = 5, PE = 5):
         UnderValued = []
         for z in stocks:
@@ -131,3 +131,5 @@ class PyTrader:
 
     def combineTables(self):
         pass
+    
+    """
