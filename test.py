@@ -8,7 +8,8 @@ pyT.stockScreener(['A','AA','AACG','AACT','AADI','AAL','AAM','AAME','AAMI','AAOI
                    'ACI','ACIC','ACIU','ACIW','ACLS','ACLX','ACM','ACMR','ACN','ACNB','ACNT','ACOG','ACON','ACR','ACRE','ACRS','ACRV','ACT','ACTG',
                    'ACTU','ACU','ACVA','ACXP','ADAG','ADAP','ADBE','ADC','ADCT','ADD','ADEA','ADGM','ADI','ADIL','ADM','ADMA'])
 """
-pyT.generateValueReport(['MSFT','NVDA','AMZN','GOOGL','META'],save_as_csv=True)
+pyT.generateValueReport(['MSFT','NVDA','AMZN','GOOGL','META','ACM','ACMR','ACN','ACNB','ACNT','ACOG','ACON','ACR','ACRE','ACRS','ACRV','ACT','ACTG',
+                   'ACTU','ACU','ACVA','ACXP','ADAG','ADAP','ADBE','ADC','ADCT','ADD','ADEA','ADGM','ADI','ADIL','ADM','ADMA'],save_as_csv=True)
 
 
 #pyT.generateTechnicalReport(['TER'])

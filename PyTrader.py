@@ -10,7 +10,8 @@ import time
 class PyTrader:
 
     def __init__(self):
-        pass
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.max_rows', None)
 
     def generateValueReport(self,stocks,save_as_csv=False):
         arr = []
