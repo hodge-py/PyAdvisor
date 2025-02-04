@@ -9,4 +9,5 @@ class TradingBot(gym.Env):
 
     def __init__(self,data, env, amount = 10000):
         self.env = env
-        
+        self.amount = amount
+        self.data = data
