@@ -21,11 +21,12 @@ class TradingBot(gym.Env):
         self.state = 0
         self.stocks_owned = 0
         self.stock_price_history = data['Close']
+        self.volume = data['Volume']
         self.date = data['date']
 
 
         self.action_space = spaces.Box(low=np.array([-1, 0]), high=np.array([1, 1]), shape=(2,))  # (Action, Amount) where Action: -1: Buy, 0: Hold, 1: Sell
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(1,))
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,))
 
         self.done = False
         self.render_df = pd.DataFrame()
@@ -42,7 +43,7 @@ class TradingBot(gym.Env):
 
 
     def _get_obs(self):
-        return np.array([self.stock_price_history[self.current_step]])
+        return np.array([self.stock_price_history[self.current_step],self.volume[self.current_step]])
 
     def step(self, action):
         prev_portfolio_value = self.balance if self.current_step == 0 else self.current_portfolio_value + self.stocks_owned * self.stock_price_history[self.current_step]
@@ -113,8 +114,8 @@ class TradingBot(gym.Env):
         pass
 
 
-stock = yf.Ticker("MSFT")
-history = stock.history(start='2021-3-1', end='2022-3-1')
+stock = yf.Ticker("PYPL")
+history = stock.history(start='2019-3-1', end='2020-3-1')
 history['date'] = pd.to_datetime(history.index)
 env = TradingBot(history)
 
@@ -122,8 +123,8 @@ model = PPO("MlpPolicy", env, verbose=0)
 model.learn(total_timesteps=10000, progress_bar=True)
 model.save("ppo_aapl")
 
-stock = yf.Ticker("MSFT")
-history = stock.history(start='2022-3-1', end='2023-3-1')
+stock = yf.Ticker("TSLA")
+history = stock.history(start='2020-3-1', end='2021-3-1')
 history['date'] = pd.to_datetime(history.index)
 env = TradingBot(history)
 
@@ -139,6 +140,5 @@ dataF = env.renderAll()
 print(dataF)
 #xValue = np.linspace(0,100,num=len(dataF['market_value']))
 
-plt.plot(dataF["Date"],dataF['market_value']/50)
-plt.plot(dataF["Date"],dataF['price'])
+plt.plot(dataF["Date"],dataF['market_value'])
 plt.show()
