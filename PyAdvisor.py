@@ -94,7 +94,7 @@ class PyAdvisor:
 
         for z in range(1, time_horizon):
             Wiener_value = np.random.normal(0,1,sim_num)
-            sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / 252 + expected_volatility * Wiener_value / np.sqrt(252))
+            sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / days_out + expected_volatility * Wiener_value / np.sqrt(252))
 
         fig = plt.figure()
         gs = fig.add_gridspec(1,2, wspace=0)
