@@ -71,7 +71,7 @@ class PyAdvisor:
         print("\n")
         print(ef.portfolio_performance(verbose=True))
 
-    def Rebalncing(self):
+    def generate_sample_portfolio(self,risk='low'):
         pass
 
     def tax_optimization(self):
