@@ -50,7 +50,7 @@ class PyAdvisor:
         self._meanVariance(start_date)
 
     def _meanVariance(self,start_date):
-        df_prices = yf.download(tickers=list(self.portfolio.index.values), start=start_date)
+        df_prices = yf.download(tickers=list(self.portfolio.index.values), start=start_date,auto_adjust=True)
         df_final = df_prices.loc[:, "Close"]
 
         mu = mean_historical_return(df_final)
@@ -71,6 +71,35 @@ class PyAdvisor:
         print("\n")
         print(ef.portfolio_performance(verbose=True))
 
+
+    def forcast_portfolio_returns(self,start_date,days_out):
+        data = yf.download(tickers=list(self.portfolio.index.values), start=start_date,auto_adjust=True).loc[:,'Close']
+        returns = np.log(data / data.shift(1)).dropna()
+
+        weight = self.portfolio['Weight'].values
+        mean = returns.mean() * 252
+        variance = returns.cov() * 252
+        print(weight,mean,variance)
+
+        expected_return = np.sum((weight/100)*mean)
+        expected_volatility = np.sqrt(np.dot((weight/100).T,np.dot(variance,(weight/100))))
+        print(expected_return,expected_volatility)
+
+        sim_num = 10000
+        time_horizon = days_out
+        initial_value = np.sum(self.portfolio['Initial Value'])
+
+        sim_portfolio_value = np.zeros((time_horizon, sim_num))
+        sim_portfolio_value[0] = initial_value
+
+        for z in range(1, time_horizon):
+            Wiener_value = np.random.normal(0,1,sim_num)
+            sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / 252 + expected_volatility * Wiener_value / np.sqrt(252))
+            
+        plt.plot(sim_portfolio_value)
+        plt.hist(sim_portfolio_value)
+        plt.show()
+
     def generate_sample_portfolio(self,risk='low'):
         pass
 
@@ -80,4 +109,5 @@ class PyAdvisor:
 
 rb = PyAdvisor([["MSFT",20,417],["TSLA",10,250]])
 
-rb.portfolio_allocation('2024-01-01')
+#rb.portfolio_allocation('2024-01-01')
+rb.forcast_portfolio_returns('2024-01-01',252)
