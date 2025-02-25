@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import yfinance as yf
+from contourpy import as_z_interp
+from matplotlib import gridspec
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
 from pypfopt.efficient_frontier import EfficientFrontier
@@ -79,11 +81,9 @@ class PyAdvisor:
         weight = self.portfolio['Weight'].values
         mean = returns.mean() * 252
         variance = returns.cov() * 252
-        print(weight,mean,variance)
 
         expected_return = np.sum((weight/100)*mean)
         expected_volatility = np.sqrt(np.dot((weight/100).T,np.dot(variance,(weight/100))))
-        print(expected_return,expected_volatility)
 
         sim_num = 10000
         time_horizon = days_out
@@ -95,10 +95,14 @@ class PyAdvisor:
         for z in range(1, time_horizon):
             Wiener_value = np.random.normal(0,1,sim_num)
             sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / 252 + expected_volatility * Wiener_value / np.sqrt(252))
-            
-        plt.plot(sim_portfolio_value)
-        plt.hist(sim_portfolio_value)
+
+        fig = plt.figure()
+        gs = fig.add_gridspec(1,2, wspace=0)
+        (ax1,ax2) = gs.subplots(sharey=True)
+        ax1.plot(sim_portfolio_value)
+        ax2.hist(sim_portfolio_value[-1],orientation='horizontal',bins=int(np.sqrt(sim_num)))
         plt.show()
+
 
     def generate_sample_portfolio(self,risk='low'):
         pass
