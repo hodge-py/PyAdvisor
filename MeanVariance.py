@@ -7,7 +7,7 @@ from scipy.optimize import minimize
 from tensorflow.python.ops.gen_array_ops import lower_bound
 
 
-class RoboAdvisor:
+class MeanVariance:
     def __init__(self,tickers: list[str], timePeriod):
         self.tickers = tickers
         self.timePeriod = timePeriod
@@ -79,7 +79,7 @@ class RoboAdvisor:
         initial_weight = np.ones(len(self.names))/len(self.names)
         print(bounds)
         self.args = (self.mean,self.variance)
-        target = 0.15
+        target = 0.12
         constraints = ({"type": 'eq', 'fun': lambda x: self._portfolio_mean(x) - target},
                        {'type': 'eq', 'fun': lambda x: np.sum(x)-1})
 
@@ -95,4 +95,4 @@ class RoboAdvisor:
         plt.legend(loc='best')
         plt.show()
 
-r = RoboAdvisor(['NBET','MITA','AVRE'],'2024-01-01')
+r = MeanVariance(["ZSP.TO","VFV.TO","XUS.TO"],'2024-01-01')
