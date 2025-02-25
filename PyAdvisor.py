@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 from contourpy import as_z_interp
 from matplotlib import gridspec
+from matplotlib.pyplot import xlabel
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
 from pypfopt.efficient_frontier import EfficientFrontier
@@ -97,11 +98,23 @@ class PyAdvisor:
             sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / days_out + expected_volatility * Wiener_value / np.sqrt(252))
 
         fig = plt.figure()
+        fig.suptitle('Monte Carlo Simulation Portfolio Returns')
         gs = fig.add_gridspec(1,2, wspace=0)
         (ax1,ax2) = gs.subplots(sharey=True)
         ax1.plot(sim_portfolio_value)
+        ax1.set_xlabel("Days")
+        ax1.set_ylabel("Portfolio Value")
         ax2.hist(sim_portfolio_value[-1],orientation='horizontal',bins=int(np.sqrt(sim_num)))
+        ax2.axhline(np.percentile(sim_portfolio_value[-1],95),color='r')
+        ax2.axhline(np.percentile(sim_portfolio_value[-1],50),color='g')
+        ax2.axhline(np.percentile(sim_portfolio_value[-1],5),color='black')
         plt.show()
+
+        print(f"Median: {np.median(sim_portfolio_value[-1])}, Mean: {np.mean(sim_portfolio_value[-1])}")
+        print(f"95 Percentile Return: {np.percentile(sim_portfolio_value[-1],95)}")
+        print(f"50 Percentile Return: {np.percentile(sim_portfolio_value[-1],50)}")
+        print(f"5 Percentile Return: {np.percentile(sim_portfolio_value[-1],5)}")
+
 
 
     def generate_sample_portfolio(self,risk='low'):
@@ -111,7 +124,7 @@ class PyAdvisor:
         pass
 
 
-rb = PyAdvisor([["MSFT",20,417],["TSLA",10,250]])
+rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 
 #rb.portfolio_allocation('2024-01-01')
 rb.forcast_portfolio_returns('2024-01-01',252)
