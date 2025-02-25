@@ -115,7 +115,8 @@ class PyAdvisor:
         print(f"50 Percentile Return: {np.percentile(sim_portfolio_value[-1],50)}")
         print(f"5 Percentile Return: {np.percentile(sim_portfolio_value[-1],5)}")
 
-
+    def forcast_single_stock(self,start_date,days_out):
+        pass
 
     def generate_sample_portfolio(self,risk='low'):
         pass
