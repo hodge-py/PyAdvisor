@@ -14,10 +14,20 @@ from pypfopt.efficient_frontier import EfficientFrontier
 class PyAdvisor:
 
     def __init__(self,portfolio):
+        """
+        initializes the portfolio variable
+        :param portfolio:
+        """
         self.portfolio = pd.DataFrame()
         self._initial_portfolio(portfolio)
 
     def _initial_portfolio(self, portfolio):
+        """
+        Sets the initial portfolio for use.
+
+        :param portfolio: 2d array of [[Symbol, Shares, Average Price]]
+        :return: None
+        """
         df = pd.DataFrame(portfolio,columns=['Symbol','Shares','Average Price'])
         df.index = df['Symbol']
         df.drop('Symbol',axis=1,inplace=True)
@@ -34,6 +44,11 @@ class PyAdvisor:
         self.portfolio = df
 
     def set_portfolio(self,portfolio):
+        """
+        Sets a new portfolio for use.
+        :param portfolio:
+        :return:
+        """
         df = pd.DataFrame(portfolio, columns=['Symbol', 'Shares', 'Average Price'])
         df.index = df['Symbol']
         df.drop('Symbol', axis=1, inplace=True)
@@ -48,6 +63,13 @@ class PyAdvisor:
         df['Weight'] = df['Shares'] / np.sum(df['Shares']) * 100
         print(df.to_markdown(tablefmt='github'))
         self.portfolio = df
+
+    def get_portfolio(self):
+        """
+        Prints the current portfolio.
+        :return:
+        """
+        print(self.portfolio.to_markdown(tablefmt='github'))
 
     def portfolio_allocation(self,start_date):
         self._meanVariance(start_date)
@@ -115,8 +137,43 @@ class PyAdvisor:
         print(f"50 Percentile Return: {np.percentile(sim_portfolio_value[-1],50)}")
         print(f"5 Percentile Return: {np.percentile(sim_portfolio_value[-1],5)}")
 
-    def forcast_single_stock(self,start_date,days_out):
-        pass
+    def forcast_single_stock(self,start_date,days_out, stock_symbol):
+        data = yf.download(tickers=[stock_symbol], start=start_date, auto_adjust=True).loc[:,'Close']
+        returns = np.log(data / data.shift(1)).dropna()
+
+        log_returns = np.log(data / data.shift(1)).dropna()
+
+        # Step 2: Estimate Mean and Volatility
+        mu = log_returns.mean() * 252  # Annualized return
+        sigma = log_returns.std() * np.sqrt(252)  # Annualized volatility
+
+        # Step 3: Monte Carlo Simulation Parameters
+        S0 = data.iloc[-1]  # Current stock price
+        T = 252  # Days to simulate (1 year)
+        num_simulations = 10000  # Number of simulations
+
+        # Step 4: Run Monte Carlo Simulations
+        simulated_prices = np.zeros((T, num_simulations))
+        simulated_prices[0] = S0
+
+        for t in range(1, T):
+            random_shock = np.random.normal(0, 1, num_simulations)
+            drift = (mu - 0.5 * sigma ** 2) / 252  # Corrected drift term
+            diffusion = sigma.values[0] * random_shock * np.sqrt(1 / 252)  # Corrected diffusion term
+            simulated_prices[t] = simulated_prices[t - 1] * np.exp(drift.values + diffusion)
+
+        fig = plt.figure()
+        fig.suptitle(f'Monte Carlo Simulation {stock_symbol} Returns')
+        gs = fig.add_gridspec(1, 2, wspace=0)
+        (ax1, ax2) = gs.subplots(sharey=True)
+        ax1.plot(simulated_prices)
+        ax1.set_xlabel("Days")
+        ax1.set_ylabel("Portfolio Value")
+        ax2.hist(simulated_prices[-1], orientation='horizontal',bins=int(np.sqrt(num_simulations)))
+        ax2.axhline(np.percentile(simulated_prices[-1], 95), color='r')
+        ax2.axhline(np.percentile(simulated_prices[-1], 50), color='g')
+        ax2.axhline(np.percentile(simulated_prices[-1], 5), color='black')
+        plt.show()
 
     def generate_sample_portfolio(self,risk='low'):
         pass
@@ -128,4 +185,6 @@ class PyAdvisor:
 rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 
 #rb.portfolio_allocation('2024-01-01')
-rb.forcast_portfolio_returns('2024-01-01',252)
+#rb.forcast_portfolio_returns('2024-01-01',252)
+rb.forcast_single_stock('2024-01-01',252,"MSFT")
+#rb.get_portfolio()
