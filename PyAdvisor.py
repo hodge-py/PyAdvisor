@@ -75,6 +75,11 @@ class PyAdvisor:
         self._meanVariance(start_date)
 
     def _meanVariance(self,start_date):
+        """
+
+        :param start_date: yyyy-mm-dd, starting date for the expected return
+        :return:
+        """
         df_prices = yf.download(tickers=list(self.portfolio.index.values), start=start_date,auto_adjust=True)
         df_final = df_prices.loc[:, "Close"]
 
@@ -98,6 +103,12 @@ class PyAdvisor:
 
 
     def forcast_portfolio_returns(self,start_date,days_out):
+        """
+
+        :param start_date: yyyy-mm-dd format, starting date for history of close price.
+        :param days_out: Amount of days to forecast out.
+        :return:
+        """
         data = yf.download(tickers=list(self.portfolio.index.values), start=start_date,auto_adjust=True).loc[:,'Close']
         returns = np.log(data / data.shift(1)).dropna()
 
@@ -138,6 +149,13 @@ class PyAdvisor:
         print(f"5 Percentile Return: {np.percentile(sim_portfolio_value[-1],5)}")
 
     def forcast_single_stock(self,start_date,days_out, stock_symbol):
+        """
+
+        :param start_date: yyyy-mm-dd format, starting date for history of close price.
+        :param days_out: amount of days to forecast out.
+        :param stock_symbol:
+        :return:
+        """
         data = yf.download(tickers=[stock_symbol], start=start_date, auto_adjust=True).loc[:,'Close']
         returns = np.log(data / data.shift(1)).dropna()
 
