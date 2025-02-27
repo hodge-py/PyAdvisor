@@ -130,23 +130,7 @@ class PyAdvisor:
             Wiener_value = np.random.normal(0,1,sim_num)
             sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / days_out + expected_volatility * Wiener_value / np.sqrt(252))
 
-        fig = plt.figure()
-        fig.suptitle('Monte Carlo Simulation Portfolio Returns')
-        gs = fig.add_gridspec(1,2, wspace=0)
-        (ax1,ax2) = gs.subplots(sharey=True)
-        ax1.plot(sim_portfolio_value)
-        ax1.set_xlabel("Days")
-        ax1.set_ylabel("Portfolio Value")
-        ax2.hist(sim_portfolio_value[-1],orientation='horizontal',bins=int(np.sqrt(sim_num)))
-        ax2.axhline(np.percentile(sim_portfolio_value[-1],95),color='r')
-        ax2.axhline(np.percentile(sim_portfolio_value[-1],50),color='g')
-        ax2.axhline(np.percentile(sim_portfolio_value[-1],5),color='black')
-        plt.show()
-
-        print(f"Median: {np.median(sim_portfolio_value[-1])}, Mean: {np.mean(sim_portfolio_value[-1])}")
-        print(f"95 Percentile Return: {np.percentile(sim_portfolio_value[-1],95)}")
-        print(f"50 Percentile Return: {np.percentile(sim_portfolio_value[-1],50)}")
-        print(f"5 Percentile Return: {np.percentile(sim_portfolio_value[-1],5)}")
+        self._plotMonte("Monte Carlo Simulation Portfolio Returns", sim_portfolio_value,sim_num)
 
     def forcast_single_stock(self,start_date,days_out, stock_symbol):
         """
@@ -180,21 +164,48 @@ class PyAdvisor:
             diffusion = sigma.values[0] * random_shock * np.sqrt(1 / 252)  # Corrected diffusion term
             simulated_prices[t] = simulated_prices[t - 1] * np.exp(drift.values + diffusion)
 
+        self._plotMonte(f'Monte Carlo Simulation {stock_symbol} Returns',simulated_prices,num_simulations)
+
+    def _plotMonte(self,title,simulatedP,num_of_sim):
         fig = plt.figure()
-        fig.suptitle(f'Monte Carlo Simulation {stock_symbol} Returns')
+        fig.suptitle(title)
         gs = fig.add_gridspec(1, 2, wspace=0)
         (ax1, ax2) = gs.subplots(sharey=True)
-        ax1.plot(simulated_prices)
+        ax1.plot(simulatedP)
         ax1.set_xlabel("Days")
         ax1.set_ylabel("Portfolio Value")
-        ax2.hist(simulated_prices[-1], orientation='horizontal',bins=int(np.sqrt(num_simulations)))
-        ax2.axhline(np.percentile(simulated_prices[-1], 95), color='r')
-        ax2.axhline(np.percentile(simulated_prices[-1], 50), color='g')
-        ax2.axhline(np.percentile(simulated_prices[-1], 5), color='black')
+        ax2.hist(simulatedP[-1], orientation='horizontal', bins=int(np.sqrt(num_of_sim)))
+        ax2.axhline(np.percentile(simulatedP[-1], 95), color='r')
+        ax2.axhline(np.percentile(simulatedP[-1], 50), color='g')
+        ax2.axhline(np.percentile(simulatedP[-1], 5), color='black')
         plt.show()
 
-    def generate_sample_portfolio(self,risk='low'):
-        pass
+        print(f"Median: {np.median(simulatedP[-1])}, Mean: {np.mean(simulatedP[-1])}")
+        print(f"95 Percentile Return: {np.percentile(simulatedP[-1], 95)}")
+        print(f"50 Percentile Return: {np.percentile(simulatedP[-1], 50)}")
+        print(f"5 Percentile Return: {np.percentile(simulatedP[-1], 5)}")
+
+    def generate_sample_portfolio(self,risk='low',include_canada=False):
+        if include_canada:
+            df_stock = pd.read_csv("StockSymbols.csv")
+        else:
+            df_stock = pd.read_csv("StockSymbols.csv")
+            df_stock = df_stock.drop(columns=['TSX'])
+
+        print(df_stock.head())
+
+    def generateFundamentals(self,stocks, save_to_csv=False):
+        valueHold = []
+        for z in stocks:
+            try:
+                data = yf.Ticker(z)
+                info = data.info
+                arr = [info['trailingPE'],info['pricetoBook']]
+            except:
+                arr = [np.nan,np.nan]
+            break
+
+
 
     def tax_optimization(self):
         pass
@@ -204,5 +215,7 @@ rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 
 #rb.portfolio_allocation('2024-01-01')
 #rb.forcast_portfolio_returns('2024-01-01',252)
-rb.forcast_single_stock('2024-01-01',252,"PYPL")
+#rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
+rb.generate_sample_portfolio()
+rb.generateFundamentals(['MSFT','TSLA','AAPL'])
