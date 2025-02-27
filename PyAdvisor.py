@@ -204,5 +204,5 @@ rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 
 #rb.portfolio_allocation('2024-01-01')
 #rb.forcast_portfolio_returns('2024-01-01',252)
-rb.forcast_single_stock('2024-01-01',252,"MSFT")
+rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
