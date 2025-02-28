@@ -167,6 +167,13 @@ class PyAdvisor:
         self._plotMonte(f'Monte Carlo Simulation {stock_symbol} Returns',simulated_prices,num_simulations)
 
     def _plotMonte(self,title,simulatedP,num_of_sim):
+        """
+        Plots the monte carlo simulation when called
+        :param title:
+        :param simulatedP:
+        :param num_of_sim:
+        :return:
+        """
         fig = plt.figure()
         fig.suptitle(title)
         gs = fig.add_gridspec(1, 2, wspace=0)
@@ -197,18 +204,52 @@ class PyAdvisor:
     def generateFundamentals(self,stocks, save_to_csv=False):
         valueHold = []
         for z in stocks:
+            tmp = [z]
+            data = yf.Ticker(z)
+            info = data.info
+            print(info)
             try:
-                data = yf.Ticker(z)
-                info = data.info
-                arr = [info['trailingPE'],info['pricetoBook']]
+                tmp.append(self._moneyConvert(int(info['marketCap'])))
             except:
-                arr = [np.nan,np.nan]
-            break
+                tmp.append(np.nan)
+            try:
+                tmp.append(info['trailingPE'])
+            except:
+                tmp.append(np.nan)
+            try:
+                tmp.append(info['priceToBook'])
+            except:
+                tmp.append(np.nan)
+            try:
+                tmp.append(info['currentRatio'])
+            except:
+                tmp.append(np.nan)
+            try:
+                tmp.append(info['debtToEquity'])
+            except:
+                tmp.append(np.nan)
+            try:
+                tmp.append(info['returnOnEquity'])
+            except:
+                tmp.append(np.nan)
 
+            valueHold.append(tmp)
+
+
+        df_fun = pd.DataFrame(np.array(valueHold), columns=['Ticker',"marketCap",'P/E','P/B','Current Ratio', "Debt to Equity", "Return on Equity"])
+        df_fun.set_index('Ticker',inplace=True)
+        print(df_fun.to_markdown(tablefmt='github'))
 
 
     def tax_optimization(self):
         pass
+
+    def _moneyConvert(self,num):
+        if num > 1000000:
+            if not num % 1000000:
+                return f'${num // 1000000}M'
+            return f'${round(num / 1000000, 1)}M'
+        return f'${num // 1000}K'
 
 
 rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
