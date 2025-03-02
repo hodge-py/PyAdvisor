@@ -71,7 +71,7 @@ class PyAdvisor:
         """
         print(self.portfolio.to_markdown(tablefmt='github'))
 
-    def portfolio_allocation(self,start_date):
+    def portfolio_allocation_mv(self,start_date):
         self._meanVariance(start_date)
 
     def _meanVariance(self,start_date):
@@ -102,7 +102,7 @@ class PyAdvisor:
         print(ef.portfolio_performance(verbose=True))
 
 
-    def forcast_portfolio_returns(self,start_date,days_out):
+    def forcast_portfolio_returns_mcs(self,start_date,days_out):
         """
 
         :param start_date: yyyy-mm-dd format, starting date for history of close price.
@@ -132,7 +132,7 @@ class PyAdvisor:
 
         self._plotMonte("Monte Carlo Simulation Portfolio Returns", sim_portfolio_value,sim_num)
 
-    def forcast_single_stock(self,start_date,days_out, stock_symbol):
+    def forcast_single_stock_mcs(self,start_date,days_out, stock_symbol):
         """
 
         :param start_date: yyyy-mm-dd format, starting date for history of close price.
@@ -243,6 +243,10 @@ class PyAdvisor:
 
     def tax_optimization(self):
         pass
+
+
+    def forecast_portfolio_lstm(self,plot_stock_forecast=True):
+        data
 
     def _moneyConvert(self,num):
         if num > 1000000:
