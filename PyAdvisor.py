@@ -8,6 +8,7 @@ from matplotlib.pyplot import xlabel
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
 from pypfopt.efficient_frontier import EfficientFrontier
+from scipy import stats
 
 
 
@@ -246,7 +247,7 @@ class PyAdvisor:
 
 
     def forecast_portfolio_lstm(self,plot_stock_forecast=True):
-        data
+        pass
 
     def _moneyConvert(self,num):
         if num > 1000000:
@@ -262,5 +263,4 @@ rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 #rb.forcast_portfolio_returns('2024-01-01',252)
 #rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
-rb.generate_sample_portfolio()
-rb.generateFundamentals(['MSFT','TSLA','AAPL'])
+rb.forecast_portfolio_lstm()
