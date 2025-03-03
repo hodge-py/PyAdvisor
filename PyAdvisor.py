@@ -129,11 +129,11 @@ class PyAdvisor:
 
         for z in range(1, time_horizon):
             Wiener_value = np.random.normal(0,1,sim_num)
-            sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / days_out + expected_volatility * Wiener_value / np.sqrt(252))
+            sim_portfolio_value[z] = sim_portfolio_value[z-1] * np.exp((expected_return - 0.5 * expected_volatility ** 2) / 252 + expected_volatility * Wiener_value / np.sqrt(252))
 
         self._plotMonte("Monte Carlo Simulation Portfolio Returns", sim_portfolio_value,sim_num)
 
-    def forcast_single_stock_mcs(self,start_date,days_out, stock_symbol):
+    def forcast_single_stock_mcs(self,start_date,days_out,stock_symbol):
         """
 
         :param start_date: yyyy-mm-dd format, starting date for history of close price.
@@ -241,38 +241,58 @@ class PyAdvisor:
         df_fun.set_index('Ticker',inplace=True)
         print(df_fun.to_markdown(tablefmt='github'))
 
-    def options_mcs(self, stock_symbol, start_date, implied_volatility, strike_price, days_to_expiration,days_out, option_type="call"):
-        T = days_to_expiration / 365
-        N_simulations = 10000
+    def options_mcs(self, stock_symbol, start_date, K, T, r, sigma, N=10000, M=252, option_type="call"):
+        """
+
+        :param stock_symbol:
+        :param start_date: Start date used for expected returns
+        :param K: strike price
+        :param T: time to maturity (years)
+        :param r: risk-free interest rate
+        :param sigma: implied volatility
+        :param N: Number of simulations
+        :param M: number of time steps (days to expiration)
+        :param option_type: "call" or "put"
+        :return: None
+        """
         data = yf.download(tickers=[stock_symbol], start=start_date, auto_adjust=True).loc[:, 'Close']
-        S0 = data.iloc[-1]
 
         log_returns = np.log(data / data.shift(1)).dropna()
 
         # Step 2: Estimate Mean and Volatility
         mu = log_returns.mean() * 252  # Annualized return
 
-        dt = T  # Time step
-        S = np.zeros((N_simulations, days_out+1))  # Matrix to store price paths
-        S[:, 0] = S0  # Initialize all paths with the current stock price
+        dt = T / M  # Time step
+        discount_factor = np.exp(-r * T)  # Discount factor for present value
+        S0 = data.iloc[-1]  # Current stock price
+        # Simulate stock price paths using expected return (mu)
+        S = np.zeros((N, M + 1))
+        S[:, 0] = S0  # Initial price
 
-        for t in range(1, days_out + 1):
-            Z = np.random.standard_normal(N_simulations)
-            S[:, t] = S[:, t - 1] * np.exp((mu[0] - 0.5 * implied_volatility ** 2) * (dt + implied_volatility * np.sqrt(dt) * Z))
+        for t in range(1, M + 1):
+            Z = np.random.standard_normal(N)  # Random normal variables
+            S[:, t] = S[:, t - 1] * np.exp((mu.iloc[0] - 0.5 * sigma ** 2) * dt + sigma * np.sqrt(dt) * Z)
 
-            # Calculate payoffs for a call option
-        payoffs = np.maximum(S[:, -1] - strike_price, 0)  # Call option payoff: max(S_T - K, 0)
+        # Compute final option payoffs
+        S_T = S[:, -1]  # Stock price at expiration
+        print(np.max(S_T))
+        if option_type == "call":
+            payoffs = np.maximum(S_T - K, 0)  # Call option payoff
+            number_in_payoffs = np.sum(payoffs > 0) / N * 100
+            number_out_payoffs = 100 - number_in_payoffs
+        elif option_type == "put":
+            payoffs = np.maximum(K - S_T, 0)  # Put option payoff
+            number_in_payoffs = np.sum(payoffs < 0) / N * 100
+            number_out_payoffs = 100 - number_in_payoffs
+        else:
+            raise ValueError("Invalid option type. Choose 'call' or 'put'.")
 
-        # Estimate the probability of being in the money
-        itm_probability = np.mean(S[:, -1] > strike_price)
+        # Compute option price using discounted expected payoff
+        option_price = discount_factor * np.mean(payoffs)
 
-        # Discount payoffs to present value
-        option_price = np.exp(-mu * T) * np.mean(payoffs)
-
-
-        print(option_price, itm_probability, payoffs, np.max(S))
-
-
+        print(f"Estimated fair price {round(option_price,4)}")
+        print(f"Max simulated return: {round(np.max(payoffs)/K * 100,2)}%")
+        print(f"Number of simulations in the money %: {round(number_in_payoffs,2)}, out of the money %: {round(number_out_payoffs,2)}")
 
     def tax_optimization(self):
         pass
@@ -292,7 +312,7 @@ class PyAdvisor:
 rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 
 #rb.portfolio_allocation('2024-01-01')
-#rb.forcast_portfolio_returns('2024-01-01',252)
+#rb.forcast_portfolio_returns_mcs('2024-01-01',252)
 #rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
-rb.options_mcs("AAPL",'2024-01-01', .0313,250,28,252)
+rb.options_mcs("AAL",'2024-01-01', 14.50,0.111,28,.4805, M=28)
