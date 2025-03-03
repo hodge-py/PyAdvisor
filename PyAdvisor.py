@@ -9,6 +9,7 @@ from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
 from pypfopt.efficient_frontier import EfficientFrontier
 from scipy import stats
+from arch import arch_model
 
 
 
@@ -241,7 +242,7 @@ class PyAdvisor:
         df_fun.set_index('Ticker',inplace=True)
         print(df_fun.to_markdown(tablefmt='github'))
 
-    def options_mcs(self, stock_symbol, start_date, K, T, r, sigma, N=10000, M=252, option_type="call"):
+    def options_mcs(self, stock_symbol, start_date, K, T, M, r, sigma, N=10000, option_type="call"):
         """
 
         :param stock_symbol:
@@ -297,6 +298,18 @@ class PyAdvisor:
     def tax_optimization(self):
         pass
 
+    def volatility_options(self,stock_symbol,start_date):
+        data = yf.download(tickers=[stock_symbol], start=start_date, auto_adjust=True).loc[:, 'Close']
+
+        log_returns = np.log(data / data.shift(1)).dropna()
+
+        model = arch_model(log_returns*100,vol="GARCH",p=1,q=1,)
+        model_fit = model.fit(disp="off")
+
+        forecast = model_fit.forecast(horizon=28)
+        garch_volatility = np.sqrt(forecast.variance.iloc[-1]) * np.sqrt(252)
+
+        print(garch_volatility.iloc[-1])
 
     def forecast_portfolio_lstm(self,plot_stock_forecast=True):
         pass
@@ -315,4 +328,5 @@ rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 #rb.forcast_portfolio_returns_mcs('2024-01-01',252)
 #rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
-rb.options_mcs("AAL",'2024-01-01', 14.50,0.111,28,.4805, M=28)
+rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
+rb.volatility_options("F",'2024-03-03')
