@@ -152,7 +152,7 @@ class PyAdvisor:
 
         # Step 3: Monte Carlo Simulation Parameters
         S0 = data.iloc[-1]  # Current stock price
-        T = 252  # Days to simulate (1 year)
+        T = days_out  # Days to simulate (1 year)
         num_simulations = 10000  # Number of simulations
 
         # Step 4: Run Monte Carlo Simulations
@@ -241,6 +241,38 @@ class PyAdvisor:
         df_fun.set_index('Ticker',inplace=True)
         print(df_fun.to_markdown(tablefmt='github'))
 
+    def options_mcs(self, stock_symbol, start_date, implied_volatility, strike_price, days_to_expiration,days_out, option_type="call"):
+        T = days_to_expiration / 365
+        N_simulations = 10000
+        data = yf.download(tickers=[stock_symbol], start=start_date, auto_adjust=True).loc[:, 'Close']
+        S0 = data.iloc[-1]
+
+        log_returns = np.log(data / data.shift(1)).dropna()
+
+        # Step 2: Estimate Mean and Volatility
+        mu = log_returns.mean() * 252  # Annualized return
+
+        dt = T  # Time step
+        S = np.zeros((N_simulations, days_out+1))  # Matrix to store price paths
+        S[:, 0] = S0  # Initialize all paths with the current stock price
+
+        for t in range(1, days_out + 1):
+            Z = np.random.standard_normal(N_simulations)
+            S[:, t] = S[:, t - 1] * np.exp((mu[0] - 0.5 * implied_volatility ** 2) * (dt + implied_volatility * np.sqrt(dt) * Z))
+
+            # Calculate payoffs for a call option
+        payoffs = np.maximum(S[:, -1] - strike_price, 0)  # Call option payoff: max(S_T - K, 0)
+
+        # Estimate the probability of being in the money
+        itm_probability = np.mean(S[:, -1] > strike_price)
+
+        # Discount payoffs to present value
+        option_price = np.exp(-mu * T) * np.mean(payoffs)
+
+
+        print(option_price, itm_probability, payoffs, np.max(S))
+
+
 
     def tax_optimization(self):
         pass
@@ -263,4 +295,4 @@ rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
 #rb.forcast_portfolio_returns('2024-01-01',252)
 #rb.forcast_single_stock('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
-rb.forecast_portfolio_lstm()
+rb.options_mcs("AAPL",'2024-01-01', .0313,250,28,252)
