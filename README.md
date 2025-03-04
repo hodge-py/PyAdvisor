@@ -1,6 +1,11 @@
 # PyAdvisor
+<p align="center">
+  <a href="https://www.python.org">
+<img src="https://img.shields.io/badge/Platforms-linux--64,win--64,osx--64-orange.svg?style=flat-square" />
+  </a>
+</p>
 
-Pyadvisor is a library developed to lended traders a helping hand with *portfolio optimization*, *stock information* and *risk analysis*. 
+Pyadvisor is a library developed to lended traders a helping hand with *portfolio optimization*, *stock information*, *options*, and *risk analysis*. 
 
 
 # Disclaimer
