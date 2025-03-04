@@ -90,6 +90,23 @@ Median: 72.56916326545192, Mean: 77.64602181528485
 
 ![image](https://github.com/user-attachments/assets/5367c1ee-d265-4c1c-83cf-fa5a54a0d378)
 
+### Options Simulation
+
+```python
+
+rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
+
+```
+
+```console
+
+Highest simulated stock price: 15.152665407255085
+Estimated fair price 0.4257
+Max simulated return: 62.06%
+Number of simulations in the money %: 44.26, out of the money %: 55.74
+
+```
+
 # Disclaimer
 This is free software and is provided as is. The author makes no guarantee that its results are accurate and is not responsible for any losses caused by the use of the code.
 
