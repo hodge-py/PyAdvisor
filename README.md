@@ -55,7 +55,8 @@ Sharpe Ratio: 2.36
 
 ```python
 
-rb.forcast_portfolio_returns_mcs('2024-01-01',252) # stard date for return calculation and 
+rb.forcast_portfolio_returns_mcs('2024-01-01',252) # stard date for return calculation
+# and forecast how many days out
 
 ```
 
@@ -69,6 +70,25 @@ Median: 8828.008860536578, Mean: 9025.559424303787
 ```
 
 ![image](https://github.com/user-attachments/assets/d4e10cb3-423c-44f5-8a18-222cd20a28ba)
+
+### Forecast a Stock
+
+```python
+
+rb.forcast_single_stock_mcs('2024-01-01',252,"PYPL")
+
+```
+
+```console
+
+Median: 72.56916326545192, Mean: 77.64602181528485
+95 Percentile price: 132.49943081758047
+50 Percentile price: 72.56916326545192
+5 Percentile price: 40.42416434165184
+
+```
+
+![image](https://github.com/user-attachments/assets/5367c1ee-d265-4c1c-83cf-fa5a54a0d378)
 
 # Disclaimer
 This is free software and is provided as is. The author makes no guarantee that its results are accurate and is not responsible for any losses caused by the use of the code.
