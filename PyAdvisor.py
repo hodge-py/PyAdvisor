@@ -11,6 +11,7 @@ from pypfopt.efficient_frontier import EfficientFrontier
 from scipy import stats
 from arch import arch_model
 
+plt.style.use('dark_background')
 
 
 class PyAdvisor:
@@ -166,9 +167,9 @@ class PyAdvisor:
             diffusion = sigma.values[0] * random_shock * np.sqrt(1 / 252)  # Corrected diffusion term
             simulated_prices[t] = simulated_prices[t - 1] * np.exp(drift.values + diffusion)
 
-        self._plotMonte(f'Monte Carlo Simulation {stock_symbol} Returns',simulated_prices,num_simulations)
+        self._plotMonte(f'Monte Carlo Simulation {stock_symbol} Price',simulated_prices,num_simulations,portfolio_or_stock="stock")
 
-    def _plotMonte(self,title,simulatedP,num_of_sim):
+    def _plotMonte(self,title,simulatedP,num_of_sim,portfolio_or_stock='portfolio'):
         """
         Plots the monte carlo simulation when called
         :param title:
@@ -176,23 +177,27 @@ class PyAdvisor:
         :param num_of_sim:
         :return:
         """
+        if portfolio_or_stock == 'portfolio':
+            title_output = 'return'
+        elif portfolio_or_stock == 'stock':
+            title_output = 'price'
         fig = plt.figure()
         fig.suptitle(title)
         gs = fig.add_gridspec(1, 2, wspace=0)
         (ax1, ax2) = gs.subplots(sharey=True)
         ax1.plot(simulatedP)
         ax1.set_xlabel("Days")
-        ax1.set_ylabel("Portfolio Value")
+        ax1.set_ylabel(title)
         ax2.hist(simulatedP[-1], orientation='horizontal', bins=int(np.sqrt(num_of_sim)))
         ax2.axhline(np.percentile(simulatedP[-1], 95), color='r')
         ax2.axhline(np.percentile(simulatedP[-1], 50), color='g')
-        ax2.axhline(np.percentile(simulatedP[-1], 5), color='black')
+        ax2.axhline(np.percentile(simulatedP[-1], 5), color='yellow')
         plt.show()
 
         print(f"Median: {np.median(simulatedP[-1])}, Mean: {np.mean(simulatedP[-1])}")
-        print(f"95 Percentile Return: {np.percentile(simulatedP[-1], 95)}")
-        print(f"50 Percentile Return: {np.percentile(simulatedP[-1], 50)}")
-        print(f"5 Percentile Return: {np.percentile(simulatedP[-1], 5)}")
+        print(f"95 Percentile {title_output}: {np.percentile(simulatedP[-1], 95)}")
+        print(f"50 Percentile {title_output}: {np.percentile(simulatedP[-1], 50)}")
+        print(f"5 Percentile {title_output}: {np.percentile(simulatedP[-1], 5)}")
 
     def generate_sample_portfolio(self,risk='low',include_canada=False):
         if include_canada:
@@ -276,7 +281,7 @@ class PyAdvisor:
 
         # Compute final option payoffs
         S_T = S[:, -1]  # Stock price at expiration
-        print(np.max(S_T))
+        print(f"Highest simulated stock price: {np.max(S_T)}")
         if option_type == "call":
             payoffs = np.maximum(S_T - K, 0)  # Call option payoff
             number_in_payoffs = np.sum(payoffs > 0) / N * 100
@@ -322,11 +327,11 @@ class PyAdvisor:
         return f'${num // 1000}K'
 
 
-rb = PyAdvisor([["MSFT",20,417],["META",10,250]])
+rb = PyAdvisor([["AAPL",20,200],["META",10,250]]) # Stock symbol, shares, average price
 
-#rb.portfolio_allocation('2024-01-01')
+#rb.portfolio_allocation_mv('2024-01-01')
 #rb.forcast_portfolio_returns_mcs('2024-01-01',252)
-#rb.forcast_single_stock('2024-01-01',252,"PYPL")
+#rb.forcast_single_stock_mcs('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
 rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
-rb.volatility_options("F",'2024-03-03')
+#rb.volatility_options("F",'2024-03-03')
