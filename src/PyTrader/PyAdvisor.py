@@ -353,7 +353,7 @@ class PyAdvisor:
 rb = PyAdvisor([["AAPL",20,200],["META",10,250]]) # Stock symbol, shares, average price
 
 #rb.portfolio_allocation_mv('2024-01-01')
-#rb.forcast_portfolio_returns_mcs('2024-01-01',252)
+rb.forcast_portfolio_returns_mcs('2024-01-01',252)
 #rb.forcast_single_stock_mcs('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
 #rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
