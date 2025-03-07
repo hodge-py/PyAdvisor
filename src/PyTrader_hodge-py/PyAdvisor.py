@@ -327,11 +327,37 @@ class PyAdvisor:
         return f'${num // 1000}K'
 
 
+    def standard_deviation_mean_std(self,stocks,start_date,standardize):
+        """
+        Find the average standard deviation a set of stocks moves.
+        :param stocks:
+        :param start_date:
+        :param standardize:
+        :return:
+        """
+
+        data = yf.download(tickers=stocks, start=start_date, auto_adjust=True).loc[:, 'Close']
+
+        log_returns = np.log(data / data.shift(1)).dropna()
+
+        # Step 2: Estimate Mean and Volatility
+        mu = log_returns.mean() * standardize  # Annualized return
+        sigma = log_returns.var() * standardize #Annualized volatility
+        sigma = np.sqrt(sigma)
+
+        print(f"mean std: {np.mean(sigma)}, Std: {np.std(sigma)}")
+        plt.hist(sigma)
+        plt.show()
+
+
 rb = PyAdvisor([["AAPL",20,200],["META",10,250]]) # Stock symbol, shares, average price
 
 #rb.portfolio_allocation_mv('2024-01-01')
 #rb.forcast_portfolio_returns_mcs('2024-01-01',252)
 #rb.forcast_single_stock_mcs('2024-01-01',252,"PYPL")
 #rb.get_portfolio()
-rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
+#rb.options_mcs("F",'2024-01-01', 9.35,0.111,28, .05,.3822)
 #rb.volatility_options("F",'2024-03-03')
+largeCap = ['AXP','PLTR','TMO','ADBE','GS','BX','NOW','VZ','TXN','RTX','QCOM','AMGN','INTU','PGR','RY','AMD','SPGI','UBER','PDD','CAT','BSX','SYK','MUFG','HDB','BLK','DHR','NEE','UNP','PFE','SONY','SCHW','GILD','SNY','TJX','C','TTE','LOW','HON','CMCSA','SHOP','ARM','SBUX','ADP','FI','AMAT','DE','BHP','VRTX','PANW','BA','BUD','BMY','MDT','SPOT','MMC','COP','PLD','NKE','CB','APP','ADI','KKR','UBS','ETN','ANET','LMT','TD','RIO','MELI','MU','UPS','SAN','SO','WELL','LRCX','ICE','AMT','IBN','SMFG','MO','CRWD','KLAC','ENB','WM','INTC','CME','ELV','DUK','RELX','BAM','SHW','EQIX','ABNB','MCO','AON','GEV','AJG','BTI','BP','BN','CI','MDLZ','CTAS','PBR','DASH','RACE','CVS','FTNT','MCK','PH','MMM','TRI','INFY','APO','ORLY','MRVL','GSK','BBVA','HCA','TT','TDG','APH','SE','ECL','ZTS','ITW','MAR','CL','BMO','RSG','CEG','REGN','EPD','PNC','MSTR','MFG']
+smallCap = ['LUNR','NEXT','HG','IIPR','GOGL','NVCR','PACS','CEPU','KYMR','BBUC','UPWK','WOR','WMK','STRA','ROCK','CXW','KLIC','OSW','TGI','SSRM','MYRG','RAMP','TRIP','GTX','EXTR','SPB','PLTK','TUYA','WERN','PSEC','SID','SEI','STC','AGIO','IRON','CERT','COCO','HI','VTMX','MESO','CGON','BKE','GNL','GLP','POWL','AZTA','NATL','CLOV','HRMY','ATRC','PHIN','OFG','BLTE','PGNY','VSCO','STNG','SJW','RPD','CWH','SIMO','PWP','HLMN','PBI','VERA','SAND','SBLK','ACLS','CVI','HE','JAMF','GDRX','TWFG','MBIN','CNMD','LZ','MTRN','NIC','JANX','MSDL','EVCM','SUPN','APGE','CMBT','MTTR','LSPD','CASH','CSGS','GB','OMCL','TVTX','LZB','EVT','BCRX','AMR','RVLV','DVAX','DGNX','ARCB','EDN','WVE','CHCO','FIHL','IAS','GTY','TARS','UNFI','PRDO','VRE','DRH','HMN','NWN','IART','ATEC','INSW','TRMD','ADUS','CENX','GLPG','DHT','GBX','ARIS','PAX','AAT','ZD','MBC','MNR','LGIH','FBNC','HIMX','AAPG','BWLP','BTE','PLUS','CNXN','IREN','MCRI','HDL','FL','IDYA','KMT','PLYA','CLBK','AGX','KLG','OI','LKFN','PCT','UFPT','KEN','NTB','AMBP','SEMR','LTC','WKC','ENVX','ADEA','AMPL','BKV','DBD','ACMR','GDYN','FCF']
+#rb.standard_deviation_mean_std(smallCap,'2024-01-01',44)
